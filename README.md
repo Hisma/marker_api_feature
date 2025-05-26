@@ -9,6 +9,7 @@ This repository tracks all file changes during the development of the marker API
 - **`file_manifest.md`** - Detailed manifest of all copied files with metadata
 - **`generate_implementation_guide.sh`** - Enhanced shell script with file extraction and git integration
 - **`generate_implementation_guide.py`** - Python script with advanced features and error handling
+- **`deploy_to_test.sh`** - Development workflow automation script for Docker builds and deployments
 - **`.git/`** - Git repository tracking all changes and iterations
 
 ## Key Features
@@ -31,6 +32,12 @@ This repository tracks all file changes during the development of the marker API
 - **Commit Automation** - Auto-commits after each script run with descriptive messages
 - **Change History** - Complete history of all feature development iterations
 - **Branch Tracking** - Links commits to specific feature branch commit hashes
+
+### 🐳 Development Workflow Automation
+- **Sync Automation** - rsync from working repo to test repo with exclusions
+- **Docker Build Pipeline** - Automated CUDA-enabled Docker builds
+- **Registry Management** - Automatic tagging and pushing to Docker Hub
+- **Progress Tracking** - Visual progress indicators for each pipeline stage
 
 ## Quick Start
 
@@ -56,6 +63,21 @@ This repository tracks all file changes during the development of the marker API
 5. **Guide Generation** - Creates comprehensive implementation guide
 6. **Manifest Creation** - Generates detailed file manifest
 7. **Auto-Commit** - Commits all changes with descriptive message
+
+### Development Workflow Automation
+
+```bash
+# Deploy changes to test environment
+./deploy_to_test.sh
+```
+
+### What Happens When You Run the Deploy Script
+
+1. **Sync Changes** - rsync from working repo to test repo (excludes .git)
+2. **Docker Build** - Builds image with CUDA support and specific configuration
+3. **Image Tagging** - Tags the built image for registry
+4. **Registry Push** - Pushes tagged image to Docker Hub
+5. **Success Notification** - Confirms deployment completion
 
 ## Command Line Arguments
 
