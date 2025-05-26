@@ -14,6 +14,10 @@ MODIFIED_FILES_DIR="modified_files"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Remote repository configuration
+REMOTE_REPO="https://github.com/Hisma/marker_api_feature.git"
+DEFAULT_BRANCH="main"
+
 # Repository path - can be passed as first argument or defaults to current directory
 REPO_PATH=${1:-"."}
 
@@ -56,6 +60,23 @@ EOF
         echo "Git repository initialized successfully."
     else
         echo "Git repository already exists."
+    fi
+    
+    # Setup remote repository if configured
+    if [ -n "$REMOTE_REPO" ]; then
+        if ! git remote get-url origin >/dev/null 2>&1; then
+            echo "Adding remote origin: $REMOTE_REPO"
+            git remote add origin "$REMOTE_REPO"
+        else
+            echo "Remote origin already configured."
+        fi
+        
+        # Rename branch to main if needed
+        current_branch=$(git branch --show-current)
+        if [ "$current_branch" != "$DEFAULT_BRANCH" ]; then
+            echo "Renaming branch from $current_branch to $DEFAULT_BRANCH"
+            git branch -M "$DEFAULT_BRANCH"
+        fi
     fi
 }
 
@@ -237,6 +258,18 @@ Generated from: git diff $BASE_BRANCH $FEATURE_BRANCH"
     # Commit changes
     git commit -m "$commit_msg"
     echo "Changes committed successfully."
+    
+    # Push to remote if remote exists
+    if git remote get-url origin >/dev/null 2>&1; then
+        echo "Pushing to remote repository..."
+        if git push origin "$DEFAULT_BRANCH" 2>/dev/null; then
+            echo "Successfully pushed to remote repository."
+        else
+            echo "Warning: Failed to push to remote repository. You may need to push manually."
+        fi
+    else
+        echo "No remote repository configured - skipping push."
+    fi
     
     # Show recent commits
     echo ""
