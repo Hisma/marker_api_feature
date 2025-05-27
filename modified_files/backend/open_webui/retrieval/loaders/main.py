@@ -216,15 +216,32 @@ class Loader:
         file_ext = filename.split(".")[-1].lower()
 
         if (
+            self.engine == "external"
+            and self.kwargs.get("EXTERNAL_DOCUMENT_LOADER_URL")
+            and self.kwargs.get("EXTERNAL_DOCUMENT_LOADER_API_KEY")
+        ):
+            loader = ExternalDocumentLoader(
+                file_path=file_path,
+                url=self.kwargs.get("EXTERNAL_DOCUMENT_LOADER_URL"),
+                api_key=self.kwargs.get("EXTERNAL_DOCUMENT_LOADER_API_KEY"),
+                mime_type=file_content_type,
+            )
+        elif self.engine == "tika" and self.kwargs.get("TIKA_SERVER_URL"):
+            if self._is_text_file(file_ext, file_content_type):
+                loader = TextLoader(file_path, autodetect_encoding=True)
+            else:
+                loader = TikaLoader(
+                    url=self.kwargs.get("TIKA_SERVER_URL"),
+                    file_path=file_path,
+                    mime_type=file_content_type,
+                    extract_images=self.kwargs.get("PDF_EXTRACT_IMAGES"),
+                )
+        elif (
             self.engine == "datalab_marker"
             and self.kwargs.get("DATALAB_MARKER_API_KEY")
-            and file_ext in [
-                "pdf", "xls", "xlsx", "ods", "doc", "docx", "odt", "ppt",
-                "pptx", "odp", "html", "epub", "png", "jpeg", "jpg", "webp",
-                "gif", "tiff"
-            ]
+            and file_ext in ["pdf", "xls", "xlsx", "ods", "doc", "docx", "odt", "ppt", "pptx", "odp", "html", "epub", "png", "jpeg", "jpg", "webp", "gif", "tiff"]
         ):
-            return DatalabMarkerLoader(
+            loader = DatalabMarkerLoader(
                 file_path=file_path,
                 api_key=self.kwargs["DATALAB_MARKER_API_KEY"],
                 langs=self.kwargs.get("DATALAB_MARKER_LANGS"),
@@ -236,27 +253,6 @@ class Loader:
                 disable_image_extraction=self.kwargs.get("DATALAB_MARKER_DISABLE_IMAGE_EXTRACTION", False),
                 output_format=self.kwargs.get("DATALAB_MARKER_OUTPUT_FORMAT", "markdown")
             )
-        if (
-            self.engine == "external"
-            and self.kwargs.get("EXTERNAL_DOCUMENT_LOADER_URL")
-            and self.kwargs.get("EXTERNAL_DOCUMENT_LOADER_API_KEY")
-        ):
-            loader = ExternalDocumentLoader(
-                file_path=file_path,
-                url=self.kwargs.get("EXTERNAL_DOCUMENT_LOADER_URL"),
-                api_key=self.kwargs.get("EXTERNAL_DOCUMENT_LOADER_API_KEY"),
-                mime_type=file_content_type,
-            )
-        if self.engine == "tika" and self.kwargs.get("TIKA_SERVER_URL"):
-            if self._is_text_file(file_ext, file_content_type):
-                loader = TextLoader(file_path, autodetect_encoding=True)
-            else:
-                loader = TikaLoader(
-                    url=self.kwargs.get("TIKA_SERVER_URL"),
-                    file_path=file_path,
-                    mime_type=file_content_type,
-                    extract_images=self.kwargs.get("PDF_EXTRACT_IMAGES"),
-                )
         elif self.engine == "docling" and self.kwargs.get("DOCLING_SERVER_URL"):
             if self._is_text_file(file_ext, file_content_type):
                 loader = TextLoader(file_path, autodetect_encoding=True)

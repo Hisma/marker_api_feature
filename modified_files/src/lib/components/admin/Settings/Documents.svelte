@@ -58,6 +58,27 @@
 	};
 
 	let RAGConfig = null;
+	let selectedLanguages: string[] = ['en'];
+	let langsHydrated = false;
+
+	const SUPPORTED_LANGUAGES = {
+		"af": "Afrikaans", "am": "Amharic", "ar": "Arabic", "as": "Assamese", "az": "Azerbaijani", "be": "Belarusian",
+		"bg": "Bulgarian", "bn": "Bengali", "br": "Breton", "bs": "Bosnian", "ca": "Catalan", "cs": "Czech",
+		"cy": "Welsh", "da": "Danish", "de": "German", "el": "Greek", "en": "English", "eo": "Esperanto",
+		"es": "Spanish", "et": "Estonian", "eu": "Basque", "fa": "Persian", "fi": "Finnish", "fr": "French",
+		"fy": "Western Frisian", "ga": "Irish", "gd": "Scottish Gaelic", "gl": "Galician", "gu": "Gujarati",
+		"ha": "Hausa", "he": "Hebrew", "hi": "Hindi", "hr": "Croatian", "hu": "Hungarian", "hy": "Armenian",
+		"id": "Indonesian", "is": "Icelandic", "it": "Italian", "ja": "Japanese", "jv": "Javanese", "ka": "Georgian",
+		"kk": "Kazakh", "km": "Khmer", "kn": "Kannada", "ko": "Korean", "ku": "Kurdish", "ky": "Kyrgyz",
+		"la": "Latin", "lo": "Lao", "lt": "Lithuanian", "lv": "Latvian", "mg": "Malagasy", "mk": "Macedonian",
+		"ml": "Malayalam", "mn": "Mongolian", "mr": "Marathi", "ms": "Malay", "my": "Burmese", "ne": "Nepali",
+		"nl": "Dutch", "no": "Norwegian", "om": "Oromo", "or": "Oriya", "pa": "Punjabi", "pl": "Polish",
+		"ps": "Pashto", "pt": "Portuguese", "ro": "Romanian", "ru": "Russian", "sa": "Sanskrit", "sd": "Sindhi",
+		"si": "Sinhala", "sk": "Slovak", "sl": "Slovenian", "so": "Somali", "sq": "Albanian", "sr": "Serbian",
+		"su": "Sundanese", "sv": "Swedish", "sw": "Swahili", "ta": "Tamil", "te": "Telugu", "th": "Thai",
+		"tl": "Tagalog", "tr": "Turkish", "ug": "Uyghur", "uk": "Ukrainian", "ur": "Urdu", "uz": "Uzbek",
+		"vi": "Vietnamese", "xh": "Xhosa", "yi": "Yiddish", "zh": "Chinese", "_math": "Math"
+	};
 
 	const embeddingModelUpdateHandler = async () => {
 		if (embeddingEngine === '' && embeddingModel.split('/').length - 1 > 1) {
@@ -124,49 +145,47 @@
 	};
 
 	const submitHandler = async () => {
-		if (
-		  RAGConfig.CONTENT_EXTRACTION_ENGINE === 'datalab_marker' &&
-		  !RAGConfig.DATALAB_MARKER_API_KEY
-		) {
-		  toast.error($i18n.t('Datalab Marker API Key required.'));
-		  return;
+		if (RAGConfig.CONTENT_EXTRACTION_ENGINE === 'datalab_marker' && !RAGConfig.DATALAB_MARKER_API_KEY) {
+			toast.error($i18n.t('Datalab Marker API Key required.'));
+			return;
 		}
-		if (RAGConfig.CONTENT_EXTRACTION_ENGINE === 'external' && !RAGConfig.EXTERNAL_DOCUMENT_LOADER_URL) {
+		if (
+			RAGConfig.CONTENT_EXTRACTION_ENGINE === 'external' &&
+			RAGConfig.EXTERNAL_DOCUMENT_LOADER_URL === ''
+		) {
 			toast.error($i18n.t('External Document Loader URL required.'));
 			return;
 		}
-		if (RAGConfig.CONTENT_EXTRACTION_ENGINE === 'external' && !RAGConfig.EXTERNAL_DOCUMENT_LOADER_API_KEY) {
-			toast.error($i18n.t('External Document Loader API Key required.'));
-			return;
-		}
-		if (RAGConfig.CONTENT_EXTRACTION_ENGINE === 'tika' && !RAGConfig.TIKA_SERVER_URL) {
+		if (RAGConfig.CONTENT_EXTRACTION_ENGINE === 'tika' && RAGConfig.TIKA_SERVER_URL === '') {
 			toast.error($i18n.t('Tika Server URL required.'));
 			return;
 		}
-		if (RAGConfig.CONTENT_EXTRACTION_ENGINE === 'docling' && !RAGConfig.DOCLING_SERVER_URL) {
+		if (RAGConfig.CONTENT_EXTRACTION_ENGINE === 'docling' && RAGConfig.DOCLING_SERVER_URL === '') {
 			toast.error($i18n.t('Docling Server URL required.'));
 			return;
 		}
 		if (
 			RAGConfig.CONTENT_EXTRACTION_ENGINE === 'docling' &&
 			((RAGConfig.DOCLING_OCR_ENGINE === '' && RAGConfig.DOCLING_OCR_LANG !== '') ||
-			(RAGConfig.DOCLING_OCR_ENGINE !== '' && RAGConfig.DOCLING_OCR_LANG === ''))
+				(RAGConfig.DOCLING_OCR_ENGINE !== '' && RAGConfig.DOCLING_OCR_LANG === ''))
 		) {
 			toast.error(
-			$i18n.t('Both Docling OCR Engine and Language(s) must be provided or both left empty.')
+				$i18n.t('Both Docling OCR Engine and Language(s) must be provided or both left empty.')
 			);
 			return;
 		}
+
 		if (
 			RAGConfig.CONTENT_EXTRACTION_ENGINE === 'document_intelligence' &&
-			(!RAGConfig.DOCUMENT_INTELLIGENCE_ENDPOINT || !RAGConfig.DOCUMENT_INTELLIGENCE_KEY)
+			(RAGConfig.DOCUMENT_INTELLIGENCE_ENDPOINT === '' ||
+				RAGConfig.DOCUMENT_INTELLIGENCE_KEY === '')
 		) {
 			toast.error($i18n.t('Document Intelligence endpoint and key required.'));
 			return;
 		}
 		if (
 			RAGConfig.CONTENT_EXTRACTION_ENGINE === 'mistral_ocr' &&
-			!RAGConfig.MISTRAL_OCR_API_KEY
+			RAGConfig.MISTRAL_OCR_API_KEY === ''
 		) {
 			toast.error($i18n.t('Mistral OCR API Key required.'));
 			return;
@@ -176,7 +195,7 @@
 			await embeddingModelUpdateHandler();
 		}
 
-		RAGConfig.ALLOWED_FILE_EXTENSIONS = (RAGConfig.ALLOWED_FILE_EXTENSIONS ?? '')
+		RAGConfig.ALLOWED_FILE_EXTENSIONS = (RAGConfig?.ALLOWED_FILE_EXTENSIONS ?? '')
 			.split(',')
 			.map((ext) => ext.trim())
 			.filter((ext) => ext !== '');
@@ -206,112 +225,25 @@
 		const config = await getRAGConfig(localStorage.token);
 		config.ALLOWED_FILE_EXTENSIONS = (config?.ALLOWED_FILE_EXTENSIONS ?? []).join(', ');
 
+		if (!config.DATALAB_MARKER_OUTPUT_FORMAT) {
+			config.DATALAB_MARKER_OUTPUT_FORMAT = 'markdown';
+		}
+
+		if (config.DATALAB_MARKER_LANGS) {
+			selectedLanguages = config.DATALAB_MARKER_LANGS
+				.split(',')
+				.map(code => code.trim())
+				.filter(Boolean);
+		}
+
 		RAGConfig = config;
+		langsHydrated = true;
 	});
 
-	const SUPPORTED_LANGUAGES = {
-		"_math": "Math",
-		"af": "Afrikaans",
-		"am": "Amharic",
-		"ar": "Arabic",
-		"as": "Assamese",
-		"az": "Azerbaijani",
-		"be": "Belarusian",
-		"bg": "Bulgarian",
-		"bn": "Bengali",
-		"br": "Breton",
-		"bs": "Bosnian",
-		"ca": "Catalan",
-		"cs": "Czech",
-		"cy": "Welsh",
-		"da": "Danish",
-		"de": "German",
-		"el": "Greek",
-		"en": "English",
-		"eo": "Esperanto",
-		"es": "Spanish",
-		"et": "Estonian",
-		"eu": "Basque",
-		"fa": "Persian",
-		"fi": "Finnish",
-		"fr": "French",
-		"fy": "Western Frisian",
-		"ga": "Irish",
-		"gd": "Scottish Gaelic",
-		"gl": "Galician",
-		"gu": "Gujarati",
-		"ha": "Hausa",
-		"he": "Hebrew",
-		"hi": "Hindi",
-		"hr": "Croatian",
-		"hu": "Hungarian",
-		"hy": "Armenian",
-		"id": "Indonesian",
-		"is": "Icelandic",
-		"it": "Italian",
-		"ja": "Japanese",
-		"jv": "Javanese",
-		"ka": "Georgian",
-		"kk": "Kazakh",
-		"km": "Khmer",
-		"kn": "Kannada",
-		"ko": "Korean",
-		"ku": "Kurdish",
-		"ky": "Kyrgyz",
-		"la": "Latin",
-		"lo": "Lao",
-		"lt": "Lithuanian",
-		"lv": "Latvian",
-		"mg": "Malagasy",
-		"mk": "Macedonian",
-		"ml": "Malayalam",
-		"mn": "Mongolian",
-		"mr": "Marathi",
-		"ms": "Malay",
-		"my": "Burmese",
-		"ne": "Nepali",
-		"nl": "Dutch",
-		"no": "Norwegian",
-		"om": "Oromo",
-		"or": "Oriya",
-		"pa": "Punjabi",
-		"pl": "Polish",
-		"ps": "Pashto",
-		"pt": "Portuguese",
-		"ro": "Romanian",
-		"ru": "Russian",
-		"sa": "Sanskrit",
-		"sd": "Sindhi",
-		"si": "Sinhala",
-		"sk": "Slovak",
-		"sl": "Slovenian",
-		"so": "Somali",
-		"sq": "Albanian",
-		"sr": "Serbian",
-		"su": "Sundanese",
-		"sv": "Swedish",
-		"sw": "Swahili",
-		"ta": "Tamil",
-		"te": "Telugu",
-		"th": "Thai",
-		"tl": "Tagalog",
-		"tr": "Turkish",
-		"ug": "Uyghur",
-		"uk": "Ukrainian",
-		"ur": "Urdu",
-		"uz": "Uzbek",
-		"vi": "Vietnamese",
-		"xh": "Xhosa",
-		"yi": "Yiddish",
-		"zh": "Chinese",
-	}
-
-	let selectedLanguages: string[] = ['en'];
-
-	$: if (RAGConfig) {
+	$: if (langsHydrated && RAGConfig) {
 		RAGConfig.DATALAB_MARKER_LANGS = selectedLanguages.length
-		? selectedLanguages.join(',')
-		: null;
+			? selectedLanguages.join(',')
+			: 'en';
 	}
 </script>
 
@@ -382,7 +314,6 @@
 									bind:value={RAGConfig.CONTENT_EXTRACTION_ENGINE}
 								>
 									<option value="">{$i18n.t('Default')}</option>
-									<option value="datalab_marker">{ $i18n.t('Datalab Marker API') }</option>
 									<option value="external">{$i18n.t('External')}</option>
 									<option value="tika">{$i18n.t('Tika')}</option>
 									<option value="docling">{$i18n.t('Docling')}</option>
@@ -393,18 +324,16 @@
 						</div>
 
 						{#if RAGConfig.CONTENT_EXTRACTION_ENGINE === ''}
-						  <!-- default PDF Extract Images switch -->
-						  <div class="flex w-full mt-1">
-							<div class="flex-1 flex justify-between">
-							  <div class="self-center text-xs font-medium">
-								{$i18n.t('PDF Extract Images (OCR)')}
-							  </div>
-							  <div class="flex items-center relative">
-								<Switch bind:state={RAGConfig.PDF_EXTRACT_IMAGES} />
-							  </div>
+							<div class="flex w-full mt-1">
+								<div class="flex-1 flex justify-between">
+									<div class=" self-center text-xs font-medium">
+										{$i18n.t('PDF Extract Images (OCR)')}
+									</div>
+									<div class="flex items-center relative">
+										<Switch bind:state={RAGConfig.PDF_EXTRACT_IMAGES} />
+									</div>
+								</div>
 							</div>
-						  </div>
-
 						{:else if RAGConfig.CONTENT_EXTRACTION_ENGINE === 'datalab_marker'}
 						  <div class="my-0.5 flex gap-2 pr-2">
 							<SensitiveInput
@@ -416,7 +345,7 @@
 						  <div class="my-0.5 flex gap-2 pr-2 w-full">
 							<div class="flex flex-col w-full">
 								<label class="text-xs font-medium mb-1">
-								{$i18n.t("OCR language(s). Hold Ctrl (Windows) or Cmd (Mac) to select multiple.")}
+								{$i18n.t("OCR language(s). Hold Ctrl (Windows) or Cmd (Mac) to select multiple. If no selection defaults to English")}
 								</label>
 								<select
 								class="w-full text-sm bg-transparent border border-gray-300 dark:border-gray-700 rounded-sm p-1 outline-hidden"
@@ -432,7 +361,7 @@
 					      </div>
 							<div class="mb-1 flex w-full justify-between">
 							<div class="self-center text-xs font-medium">
-								<Tooltip content={$i18n.t('Significantly improves accuracy by using an LLM to enhance tables, forms, inline math, and layout detection. Will increase latency. Defaults to False.')} placement="top-start">
+								<Tooltip content={$i18n.t('Significantly improves accuracy by using an LLM to enhance tables, forms, inline math, and layout detection. Will increase latency. Defaults to True.')} placement="top-start">
 								{$i18n.t('Use LLM')}
 								</Tooltip>
 							</div>
@@ -498,16 +427,15 @@
 							</div>
 							<div class="">
 								<select
-								class="dark:bg-gray-900 w-fit pr-8 rounded-sm px-2 text-xs bg-transparent outline-hidden text-right"
-								bind:value={RAGConfig.DATALAB_MARKER_OUTPUT_FORMAT}
+									class="dark:bg-gray-900 w-fit pr-8 rounded-sm px-2 text-xs bg-transparent outline-hidden text-right"
+									bind:value={RAGConfig.DATALAB_MARKER_OUTPUT_FORMAT}
 								>
-								<option value="markdown">{$i18n.t('Markdown')}</option>
-								<option value="json">{$i18n.t('JSON')}</option>
-								<option value="html">{$i18n.t('HTML')}</option>
+									<option value="markdown">{$i18n.t('Markdown')}</option>
+									<option value="json">{$i18n.t('JSON')}</option>
+									<option value="html">{$i18n.t('HTML')}</option>
 								</select>
 							</div>
 							</div>
-
 						{:else if RAGConfig.CONTENT_EXTRACTION_ENGINE === 'external'}
 							<div class="my-0.5 flex gap-2 pr-2">
 								<input
@@ -985,6 +913,26 @@
 										{$i18n.t(
 											'Note: If you set a minimum score, the search will only return documents with a score greater than or equal to the minimum score.'
 										)}
+									</div>
+								</div>
+							{/if}
+
+							{#if RAGConfig.ENABLE_RAG_HYBRID_SEARCH === true}
+								<div class="mb-2.5 flex w-full justify-between">
+									<div class="self-center text-xs font-medium">
+										{$i18n.t('Weight of BM25 Retrieval')}
+									</div>
+									<div class="flex items-center relative">
+										<input
+											class="flex-1 w-full text-sm bg-transparent outline-hidden"
+											type="number"
+											step="0.01"
+											placeholder={$i18n.t('Enter BM25 Weight')}
+											bind:value={RAGConfig.HYBRID_BM25_WEIGHT}
+											autocomplete="off"
+											min="0.0"
+											max="1.0"
+										/>
 									</div>
 								</div>
 							{/if}
