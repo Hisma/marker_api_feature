@@ -1,15 +1,14 @@
 # Implementation Guide: Marker Api Content Extraction
 
-**Generated on:** 2025-05-27 01:54:16  
+**Generated on:** 2025-05-27 02:03:05  
 **Repository:** `open-webui`  
-**Feature Branch:** `marker-api-content-extraction` (commit: e12a79c0e)  
-**Base Branch:** `main`
+**Feature Branch:** `marker-api-content-extraction`  
+**Base Branch:**    `main`  
+**Merge-Base:**     `82716f3789147585862f56f9f18fb2a77d92ed39`
 
 ## Overview
 
-This document contains the complete diff between the `marker-api-content-extraction` branch and the `main` branch, showing all changes made to implement the feature.
-
-All modified and new files have been extracted from the feature branch and copied to the `modified_files/` directory, preserving the original project structure.
+This document shows all changes made on `marker-api-content-extraction` *since* it last diverged from `main`.
 
 ## Summary Statistics
 
@@ -177,180 +176,169 @@ All modified and new files have been extracted from the feature branch and copie
  161 files changed, 6634 insertions(+), 3429 deletions(-)
 
 ## Files Changed
-
-The following files were modified, added, or deleted:
-
-- **Modified:** `.github/ISSUE_TEMPLATE/bug_report.yaml` → copied to `modified_files/.github/ISSUE_TEMPLATE/bug_report.yaml`
-- **Modified:** `CHANGELOG.md` → copied to `modified_files/CHANGELOG.md`
-- **Modified:** `backend/open_webui/config.py` → copied to `modified_files/backend/open_webui/config.py`
-- **Modified:** `backend/open_webui/env.py` → copied to `modified_files/backend/open_webui/env.py`
-- **Modified:** `backend/open_webui/functions.py` → copied to `modified_files/backend/open_webui/functions.py`
-- **Modified:** `backend/open_webui/internal/wrappers.py` → copied to `modified_files/backend/open_webui/internal/wrappers.py`
-- **Modified:** `backend/open_webui/main.py` → copied to `modified_files/backend/open_webui/main.py`
-- **Modified:** `backend/open_webui/models/auths.py` → copied to `modified_files/backend/open_webui/models/auths.py`
-- **Modified:** `backend/open_webui/models/chats.py` → copied to `modified_files/backend/open_webui/models/chats.py`
-- **Modified:** `backend/open_webui/models/functions.py` → copied to `modified_files/backend/open_webui/models/functions.py`
-- **Modified:** `backend/open_webui/models/groups.py` → copied to `modified_files/backend/open_webui/models/groups.py`
-- **Added:** `backend/open_webui/retrieval/loaders/datalab_marker_loader.py` → copied to `modified_files/backend/open_webui/retrieval/loaders/datalab_marker_loader.py`
-- **Modified:** `backend/open_webui/retrieval/loaders/main.py` → copied to `modified_files/backend/open_webui/retrieval/loaders/main.py`
-- **Modified:** `backend/open_webui/retrieval/loaders/mistral.py` → copied to `modified_files/backend/open_webui/retrieval/loaders/mistral.py`
-- **Added:** `backend/open_webui/retrieval/models/base_reranker.py` → copied to `modified_files/backend/open_webui/retrieval/models/base_reranker.py`
-- **Modified:** `backend/open_webui/retrieval/models/colbert.py` → copied to `modified_files/backend/open_webui/retrieval/models/colbert.py`
-- **Modified:** `backend/open_webui/retrieval/models/external.py` → copied to `modified_files/backend/open_webui/retrieval/models/external.py`
-- **Modified:** `backend/open_webui/retrieval/utils.py` → copied to `modified_files/backend/open_webui/retrieval/utils.py`
-- **Modified:** `backend/open_webui/retrieval/vector/dbs/pinecone.py` → copied to `modified_files/backend/open_webui/retrieval/vector/dbs/pinecone.py`
-- **Modified:** `backend/open_webui/retrieval/web/searchapi.py` → copied to `modified_files/backend/open_webui/retrieval/web/searchapi.py`
-- **Modified:** `backend/open_webui/retrieval/web/serpapi.py` → copied to `modified_files/backend/open_webui/retrieval/web/serpapi.py`
-- **Modified:** `backend/open_webui/retrieval/web/utils.py` → copied to `modified_files/backend/open_webui/retrieval/web/utils.py`
-- **Modified:** `backend/open_webui/routers/audio.py` → copied to `modified_files/backend/open_webui/routers/audio.py`
-- **Modified:** `backend/open_webui/routers/auths.py` → copied to `modified_files/backend/open_webui/routers/auths.py`
-- **Modified:** `backend/open_webui/routers/chats.py` → copied to `modified_files/backend/open_webui/routers/chats.py`
-- **Modified:** `backend/open_webui/routers/files.py` → copied to `modified_files/backend/open_webui/routers/files.py`
-- **Modified:** `backend/open_webui/routers/functions.py` → copied to `modified_files/backend/open_webui/routers/functions.py`
-- **Modified:** `backend/open_webui/routers/images.py` → copied to `modified_files/backend/open_webui/routers/images.py`
-- **Modified:** `backend/open_webui/routers/ollama.py` → copied to `modified_files/backend/open_webui/routers/ollama.py`
-- **Modified:** `backend/open_webui/routers/retrieval.py` → copied to `modified_files/backend/open_webui/routers/retrieval.py`
-- **Modified:** `backend/open_webui/routers/tools.py` → copied to `modified_files/backend/open_webui/routers/tools.py`
-- **Modified:** `backend/open_webui/storage/provider.py` → copied to `modified_files/backend/open_webui/storage/provider.py`
-- **Modified:** `backend/open_webui/utils/chat.py` → copied to `modified_files/backend/open_webui/utils/chat.py`
-- **Modified:** `backend/open_webui/utils/filter.py` → copied to `modified_files/backend/open_webui/utils/filter.py`
-- **Modified:** `backend/open_webui/utils/middleware.py` → copied to `modified_files/backend/open_webui/utils/middleware.py`
-- **Modified:** `backend/open_webui/utils/misc.py` → copied to `modified_files/backend/open_webui/utils/misc.py`
-- **Modified:** `backend/open_webui/utils/models.py` → copied to `modified_files/backend/open_webui/utils/models.py`
-- **Modified:** `backend/open_webui/utils/oauth.py` → copied to `modified_files/backend/open_webui/utils/oauth.py`
-- **Modified:** `backend/open_webui/utils/payload.py` → copied to `modified_files/backend/open_webui/utils/payload.py`
-- **Modified:** `backend/open_webui/utils/task.py` → copied to `modified_files/backend/open_webui/utils/task.py`
-- **Modified:** `backend/open_webui/utils/tools.py` → copied to `modified_files/backend/open_webui/utils/tools.py`
-- **Modified:** `backend/requirements.txt` → copied to `modified_files/backend/requirements.txt`
-- **Modified:** `package-lock.json` → copied to `modified_files/package-lock.json`
-- **Modified:** `package.json` → copied to `modified_files/package.json`
-- **Modified:** `pyproject.toml` → copied to `modified_files/pyproject.toml`
-- **Modified:** `src/app.css` → copied to `modified_files/src/app.css`
-- **Modified:** `src/lib/apis/audio/index.ts` → copied to `modified_files/src/lib/apis/audio/index.ts`
-- **Modified:** `src/lib/apis/chats/index.ts` → copied to `modified_files/src/lib/apis/chats/index.ts`
-- **Modified:** `src/lib/apis/files/index.ts` → copied to `modified_files/src/lib/apis/files/index.ts`
-- **Modified:** `src/lib/apis/functions/index.ts` → copied to `modified_files/src/lib/apis/functions/index.ts`
-- **Modified:** `src/lib/apis/index.ts` → copied to `modified_files/src/lib/apis/index.ts`
-- **Modified:** `src/lib/apis/ollama/index.ts` → copied to `modified_files/src/lib/apis/ollama/index.ts`
-- **Modified:** `src/lib/components/AddServerModal.svelte` → copied to `modified_files/src/lib/components/AddServerModal.svelte`
-- **Modified:** `src/lib/components/admin/Functions.svelte` → copied to `modified_files/src/lib/components/admin/Functions.svelte`
-- **Added:** `src/lib/components/admin/Functions/AddFunctionMenu.svelte` → copied to `modified_files/src/lib/components/admin/Functions/AddFunctionMenu.svelte`
-- **Added:** `src/lib/components/admin/Functions/ImportModal.svelte` → copied to `modified_files/src/lib/components/admin/Functions/ImportModal.svelte`
-- **Modified:** `src/lib/components/admin/Settings/Documents.svelte` → copied to `modified_files/src/lib/components/admin/Settings/Documents.svelte`
-- **Modified:** `src/lib/components/admin/Settings/General.svelte` → copied to `modified_files/src/lib/components/admin/Settings/General.svelte`
-- **Modified:** `src/lib/components/admin/Settings/Interface.svelte` → copied to `modified_files/src/lib/components/admin/Settings/Interface.svelte`
-- **Added:** `src/lib/components/admin/Settings/Interface/Banners.svelte` → copied to `modified_files/src/lib/components/admin/Settings/Interface/Banners.svelte`
-- **Modified:** `src/lib/components/admin/Settings/Models.svelte` → copied to `modified_files/src/lib/components/admin/Settings/Models.svelte`
-- **Modified:** `src/lib/components/admin/Settings/Models/ModelMenu.svelte` → copied to `modified_files/src/lib/components/admin/Settings/Models/ModelMenu.svelte`
-- **Modified:** `src/lib/components/admin/Settings/WebSearch.svelte` → copied to `modified_files/src/lib/components/admin/Settings/WebSearch.svelte`
-- **Modified:** `src/lib/components/admin/Users/UserList.svelte` → copied to `modified_files/src/lib/components/admin/Users/UserList.svelte`
-- **Modified:** `src/lib/components/admin/Users/UserList/UserChatsModal.svelte` → copied to `modified_files/src/lib/components/admin/Users/UserList/UserChatsModal.svelte`
-- **Modified:** `src/lib/components/channel/MessageInput.svelte` → copied to `modified_files/src/lib/components/channel/MessageInput.svelte`
-- **Modified:** `src/lib/components/channel/Navbar.svelte` → copied to `modified_files/src/lib/components/channel/Navbar.svelte`
-- **Modified:** `src/lib/components/chat/Chat.svelte` → copied to `modified_files/src/lib/components/chat/Chat.svelte`
-- **Modified:** `src/lib/components/chat/ContentRenderer/FloatingButtons.svelte` → copied to `modified_files/src/lib/components/chat/ContentRenderer/FloatingButtons.svelte`
-- **Modified:** `src/lib/components/chat/MessageInput.svelte` → copied to `modified_files/src/lib/components/chat/MessageInput.svelte`
-- **Modified:** `src/lib/components/chat/MessageInput/CallOverlay.svelte` → copied to `modified_files/src/lib/components/chat/MessageInput/CallOverlay.svelte`
-- **Modified:** `src/lib/components/chat/MessageInput/VoiceRecording.svelte` → copied to `modified_files/src/lib/components/chat/MessageInput/VoiceRecording.svelte`
-- **Modified:** `src/lib/components/chat/Messages/CitationsModal.svelte` → copied to `modified_files/src/lib/components/chat/Messages/CitationsModal.svelte`
-- **Modified:** `src/lib/components/chat/Messages/Markdown/AlertRenderer.svelte` → copied to `modified_files/src/lib/components/chat/Messages/Markdown/AlertRenderer.svelte`
-- **Modified:** `src/lib/components/chat/Messages/ResponseMessage.svelte` → copied to `modified_files/src/lib/components/chat/Messages/ResponseMessage.svelte`
-- **Modified:** `src/lib/components/chat/ModelSelector/Selector.svelte` → copied to `modified_files/src/lib/components/chat/ModelSelector/Selector.svelte`
-- **Modified:** `src/lib/components/chat/Navbar.svelte` → copied to `modified_files/src/lib/components/chat/Navbar.svelte`
-- **Modified:** `src/lib/components/chat/Placeholder.svelte` → copied to `modified_files/src/lib/components/chat/Placeholder.svelte`
-- **Modified:** `src/lib/components/chat/Settings/Advanced/AdvancedParams.svelte` → copied to `modified_files/src/lib/components/chat/Settings/Advanced/AdvancedParams.svelte`
-- **Modified:** `src/lib/components/chat/Settings/Audio.svelte` → copied to `modified_files/src/lib/components/chat/Settings/Audio.svelte`
-- **Modified:** `src/lib/components/chat/Settings/Chats.svelte` → copied to `modified_files/src/lib/components/chat/Settings/Chats.svelte`
-- **Modified:** `src/lib/components/chat/Settings/Personalization/AddMemoryModal.svelte` → copied to `modified_files/src/lib/components/chat/Settings/Personalization/AddMemoryModal.svelte`
-- **Modified:** `src/lib/components/chat/Settings/Personalization/EditMemoryModal.svelte` → copied to `modified_files/src/lib/components/chat/Settings/Personalization/EditMemoryModal.svelte`
-- **Modified:** `src/lib/components/chat/Suggestions.svelte` → copied to `modified_files/src/lib/components/chat/Suggestions.svelte`
-- **Modified:** `src/lib/components/common/RichTextInput.svelte` → copied to `modified_files/src/lib/components/common/RichTextInput.svelte`
-- **Added:** `src/lib/components/icons/Github.svelte` → copied to `modified_files/src/lib/components/icons/Github.svelte`
-- **Deleted:** `src/lib/components/icons/LightBlub.svelte`
-- **Added:** `src/lib/components/layout/ArchivedChatsModal.svelte` → copied to `modified_files/src/lib/components/layout/ArchivedChatsModal.svelte`
-- **Added:** `src/lib/components/layout/ChatsModal.svelte` → copied to `modified_files/src/lib/components/layout/ChatsModal.svelte`
-- **Deleted:** `src/lib/components/layout/Help.svelte`
-- **Deleted:** `src/lib/components/layout/Help/HelpMenu.svelte`
-- **Modified:** `src/lib/components/layout/Navbar.svelte` → copied to `modified_files/src/lib/components/layout/Navbar.svelte`
-- **Modified:** `src/lib/components/layout/SearchModal.svelte` → copied to `modified_files/src/lib/components/layout/SearchModal.svelte`
-- **Modified:** `src/lib/components/layout/Sidebar.svelte` → copied to `modified_files/src/lib/components/layout/Sidebar.svelte`
-- **Deleted:** `src/lib/components/layout/Sidebar/ArchivedChatsModal.svelte`
-- **Modified:** `src/lib/components/layout/Sidebar/SearchInput.svelte` → copied to `modified_files/src/lib/components/layout/Sidebar/SearchInput.svelte`
-- **Modified:** `src/lib/components/layout/Sidebar/UserMenu.svelte` → copied to `modified_files/src/lib/components/layout/Sidebar/UserMenu.svelte`
-- **Modified:** `src/lib/components/notes/NoteEditor.svelte` → copied to `modified_files/src/lib/components/notes/NoteEditor.svelte`
-- **Modified:** `src/lib/components/notes/RecordMenu.svelte` → copied to `modified_files/src/lib/components/notes/RecordMenu.svelte`
-- **Modified:** `src/lib/components/workspace/Knowledge.svelte` → copied to `modified_files/src/lib/components/workspace/Knowledge.svelte`
-- **Modified:** `src/lib/components/workspace/Knowledge/KnowledgeBase.svelte` → copied to `modified_files/src/lib/components/workspace/Knowledge/KnowledgeBase.svelte`
-- **Modified:** `src/lib/components/workspace/Models.svelte` → copied to `modified_files/src/lib/components/workspace/Models.svelte`
-- **Modified:** `src/lib/components/workspace/Models/ModelMenu.svelte` → copied to `modified_files/src/lib/components/workspace/Models/ModelMenu.svelte`
-- **Modified:** `src/lib/i18n/locales/ar-BH/translation.json` → copied to `modified_files/src/lib/i18n/locales/ar-BH/translation.json`
-- **Modified:** `src/lib/i18n/locales/ar/translation.json` → copied to `modified_files/src/lib/i18n/locales/ar/translation.json`
-- **Modified:** `src/lib/i18n/locales/bg-BG/translation.json` → copied to `modified_files/src/lib/i18n/locales/bg-BG/translation.json`
-- **Modified:** `src/lib/i18n/locales/bn-BD/translation.json` → copied to `modified_files/src/lib/i18n/locales/bn-BD/translation.json`
-- **Modified:** `src/lib/i18n/locales/bo-TB/translation.json` → copied to `modified_files/src/lib/i18n/locales/bo-TB/translation.json`
-- **Modified:** `src/lib/i18n/locales/ca-ES/translation.json` → copied to `modified_files/src/lib/i18n/locales/ca-ES/translation.json`
-- **Modified:** `src/lib/i18n/locales/ceb-PH/translation.json` → copied to `modified_files/src/lib/i18n/locales/ceb-PH/translation.json`
-- **Modified:** `src/lib/i18n/locales/cs-CZ/translation.json` → copied to `modified_files/src/lib/i18n/locales/cs-CZ/translation.json`
-- **Modified:** `src/lib/i18n/locales/da-DK/translation.json` → copied to `modified_files/src/lib/i18n/locales/da-DK/translation.json`
-- **Modified:** `src/lib/i18n/locales/de-DE/translation.json` → copied to `modified_files/src/lib/i18n/locales/de-DE/translation.json`
-- **Modified:** `src/lib/i18n/locales/dg-DG/translation.json` → copied to `modified_files/src/lib/i18n/locales/dg-DG/translation.json`
-- **Modified:** `src/lib/i18n/locales/el-GR/translation.json` → copied to `modified_files/src/lib/i18n/locales/el-GR/translation.json`
-- **Modified:** `src/lib/i18n/locales/en-GB/translation.json` → copied to `modified_files/src/lib/i18n/locales/en-GB/translation.json`
-- **Modified:** `src/lib/i18n/locales/en-US/translation.json` → copied to `modified_files/src/lib/i18n/locales/en-US/translation.json`
-- **Modified:** `src/lib/i18n/locales/es-ES/translation.json` → copied to `modified_files/src/lib/i18n/locales/es-ES/translation.json`
-- **Modified:** `src/lib/i18n/locales/et-EE/translation.json` → copied to `modified_files/src/lib/i18n/locales/et-EE/translation.json`
-- **Modified:** `src/lib/i18n/locales/eu-ES/translation.json` → copied to `modified_files/src/lib/i18n/locales/eu-ES/translation.json`
-- **Modified:** `src/lib/i18n/locales/fa-IR/translation.json` → copied to `modified_files/src/lib/i18n/locales/fa-IR/translation.json`
-- **Modified:** `src/lib/i18n/locales/fi-FI/translation.json` → copied to `modified_files/src/lib/i18n/locales/fi-FI/translation.json`
-- **Modified:** `src/lib/i18n/locales/fr-CA/translation.json` → copied to `modified_files/src/lib/i18n/locales/fr-CA/translation.json`
-- **Modified:** `src/lib/i18n/locales/fr-FR/translation.json` → copied to `modified_files/src/lib/i18n/locales/fr-FR/translation.json`
-- **Modified:** `src/lib/i18n/locales/he-IL/translation.json` → copied to `modified_files/src/lib/i18n/locales/he-IL/translation.json`
-- **Modified:** `src/lib/i18n/locales/hi-IN/translation.json` → copied to `modified_files/src/lib/i18n/locales/hi-IN/translation.json`
-- **Modified:** `src/lib/i18n/locales/hr-HR/translation.json` → copied to `modified_files/src/lib/i18n/locales/hr-HR/translation.json`
-- **Modified:** `src/lib/i18n/locales/hu-HU/translation.json` → copied to `modified_files/src/lib/i18n/locales/hu-HU/translation.json`
-- **Modified:** `src/lib/i18n/locales/id-ID/translation.json` → copied to `modified_files/src/lib/i18n/locales/id-ID/translation.json`
-- **Modified:** `src/lib/i18n/locales/ie-GA/translation.json` → copied to `modified_files/src/lib/i18n/locales/ie-GA/translation.json`
-- **Modified:** `src/lib/i18n/locales/it-IT/translation.json` → copied to `modified_files/src/lib/i18n/locales/it-IT/translation.json`
-- **Modified:** `src/lib/i18n/locales/ja-JP/translation.json` → copied to `modified_files/src/lib/i18n/locales/ja-JP/translation.json`
-- **Modified:** `src/lib/i18n/locales/ka-GE/translation.json` → copied to `modified_files/src/lib/i18n/locales/ka-GE/translation.json`
-- **Modified:** `src/lib/i18n/locales/ko-KR/translation.json` → copied to `modified_files/src/lib/i18n/locales/ko-KR/translation.json`
-- **Modified:** `src/lib/i18n/locales/lt-LT/translation.json` → copied to `modified_files/src/lib/i18n/locales/lt-LT/translation.json`
-- **Modified:** `src/lib/i18n/locales/ms-MY/translation.json` → copied to `modified_files/src/lib/i18n/locales/ms-MY/translation.json`
-- **Modified:** `src/lib/i18n/locales/nb-NO/translation.json` → copied to `modified_files/src/lib/i18n/locales/nb-NO/translation.json`
-- **Modified:** `src/lib/i18n/locales/nl-NL/translation.json` → copied to `modified_files/src/lib/i18n/locales/nl-NL/translation.json`
-- **Modified:** `src/lib/i18n/locales/pa-IN/translation.json` → copied to `modified_files/src/lib/i18n/locales/pa-IN/translation.json`
-- **Modified:** `src/lib/i18n/locales/pl-PL/translation.json` → copied to `modified_files/src/lib/i18n/locales/pl-PL/translation.json`
-- **Modified:** `src/lib/i18n/locales/pt-BR/translation.json` → copied to `modified_files/src/lib/i18n/locales/pt-BR/translation.json`
-- **Modified:** `src/lib/i18n/locales/pt-PT/translation.json` → copied to `modified_files/src/lib/i18n/locales/pt-PT/translation.json`
-- **Modified:** `src/lib/i18n/locales/ro-RO/translation.json` → copied to `modified_files/src/lib/i18n/locales/ro-RO/translation.json`
-- **Modified:** `src/lib/i18n/locales/ru-RU/translation.json` → copied to `modified_files/src/lib/i18n/locales/ru-RU/translation.json`
-- **Modified:** `src/lib/i18n/locales/sk-SK/translation.json` → copied to `modified_files/src/lib/i18n/locales/sk-SK/translation.json`
-- **Modified:** `src/lib/i18n/locales/sr-RS/translation.json` → copied to `modified_files/src/lib/i18n/locales/sr-RS/translation.json`
-- **Modified:** `src/lib/i18n/locales/sv-SE/translation.json` → copied to `modified_files/src/lib/i18n/locales/sv-SE/translation.json`
-- **Modified:** `src/lib/i18n/locales/th-TH/translation.json` → copied to `modified_files/src/lib/i18n/locales/th-TH/translation.json`
-- **Modified:** `src/lib/i18n/locales/tk-TW/translation.json` → copied to `modified_files/src/lib/i18n/locales/tk-TW/translation.json`
-- **Modified:** `src/lib/i18n/locales/tr-TR/translation.json` → copied to `modified_files/src/lib/i18n/locales/tr-TR/translation.json`
-- **Modified:** `src/lib/i18n/locales/uk-UA/translation.json` → copied to `modified_files/src/lib/i18n/locales/uk-UA/translation.json`
-- **Modified:** `src/lib/i18n/locales/ur-PK/translation.json` → copied to `modified_files/src/lib/i18n/locales/ur-PK/translation.json`
-- **Modified:** `src/lib/i18n/locales/vi-VN/translation.json` → copied to `modified_files/src/lib/i18n/locales/vi-VN/translation.json`
-- **Modified:** `src/lib/i18n/locales/zh-CN/translation.json` → copied to `modified_files/src/lib/i18n/locales/zh-CN/translation.json`
-- **Modified:** `src/lib/i18n/locales/zh-TW/translation.json` → copied to `modified_files/src/lib/i18n/locales/zh-TW/translation.json`
-- **Modified:** `src/lib/utils/index.ts` → copied to `modified_files/src/lib/utils/index.ts`
-- **Modified:** `src/lib/utils/marked/katex-extension.ts` → copied to `modified_files/src/lib/utils/marked/katex-extension.ts`
-- **Modified:** `src/routes/(app)/+page.svelte` → copied to `modified_files/src/routes/(app)/+page.svelte`
-- **Modified:** `src/routes/(app)/c/[id]/+page.svelte` → copied to `modified_files/src/routes/(app)/c/[id]/+page.svelte`
-- **Modified:** `src/routes/(app)/notes/+layout.svelte` → copied to `modified_files/src/routes/(app)/notes/+layout.svelte`
-- **Modified:** `src/routes/+layout.svelte` → copied to `modified_files/src/routes/+layout.svelte`
-
-## File Manifest
-
-See [`file_manifest.md`](./file_manifest.md) for detailed information about copied files.
-
----
+- **Modified:** `.github/ISSUE_TEMPLATE/bug_report.yaml` → `modified_files/.github/ISSUE_TEMPLATE/bug_report.yaml`
+- **Modified:** `CHANGELOG.md` → `modified_files/CHANGELOG.md`
+- **Modified:** `backend/open_webui/config.py` → `modified_files/backend/open_webui/config.py`
+- **Modified:** `backend/open_webui/env.py` → `modified_files/backend/open_webui/env.py`
+- **Modified:** `backend/open_webui/functions.py` → `modified_files/backend/open_webui/functions.py`
+- **Modified:** `backend/open_webui/internal/wrappers.py` → `modified_files/backend/open_webui/internal/wrappers.py`
+- **Modified:** `backend/open_webui/main.py` → `modified_files/backend/open_webui/main.py`
+- **Modified:** `backend/open_webui/models/auths.py` → `modified_files/backend/open_webui/models/auths.py`
+- **Modified:** `backend/open_webui/models/chats.py` → `modified_files/backend/open_webui/models/chats.py`
+- **Modified:** `backend/open_webui/models/functions.py` → `modified_files/backend/open_webui/models/functions.py`
+- **Modified:** `backend/open_webui/models/groups.py` → `modified_files/backend/open_webui/models/groups.py`
+- **Added:**    `backend/open_webui/retrieval/loaders/datalab_marker_loader.py` → `modified_files/backend/open_webui/retrieval/loaders/datalab_marker_loader.py`
+- **Modified:** `backend/open_webui/retrieval/loaders/main.py` → `modified_files/backend/open_webui/retrieval/loaders/main.py`
+- **Modified:** `backend/open_webui/retrieval/loaders/mistral.py` → `modified_files/backend/open_webui/retrieval/loaders/mistral.py`
+- **Added:**    `backend/open_webui/retrieval/models/base_reranker.py` → `modified_files/backend/open_webui/retrieval/models/base_reranker.py`
+- **Modified:** `backend/open_webui/retrieval/models/colbert.py` → `modified_files/backend/open_webui/retrieval/models/colbert.py`
+- **Modified:** `backend/open_webui/retrieval/models/external.py` → `modified_files/backend/open_webui/retrieval/models/external.py`
+- **Modified:** `backend/open_webui/retrieval/utils.py` → `modified_files/backend/open_webui/retrieval/utils.py`
+- **Modified:** `backend/open_webui/retrieval/vector/dbs/pinecone.py` → `modified_files/backend/open_webui/retrieval/vector/dbs/pinecone.py`
+- **Modified:** `backend/open_webui/retrieval/web/searchapi.py` → `modified_files/backend/open_webui/retrieval/web/searchapi.py`
+- **Modified:** `backend/open_webui/retrieval/web/serpapi.py` → `modified_files/backend/open_webui/retrieval/web/serpapi.py`
+- **Modified:** `backend/open_webui/retrieval/web/utils.py` → `modified_files/backend/open_webui/retrieval/web/utils.py`
+- **Modified:** `backend/open_webui/routers/audio.py` → `modified_files/backend/open_webui/routers/audio.py`
+- **Modified:** `backend/open_webui/routers/auths.py` → `modified_files/backend/open_webui/routers/auths.py`
+- **Modified:** `backend/open_webui/routers/chats.py` → `modified_files/backend/open_webui/routers/chats.py`
+- **Modified:** `backend/open_webui/routers/files.py` → `modified_files/backend/open_webui/routers/files.py`
+- **Modified:** `backend/open_webui/routers/functions.py` → `modified_files/backend/open_webui/routers/functions.py`
+- **Modified:** `backend/open_webui/routers/images.py` → `modified_files/backend/open_webui/routers/images.py`
+- **Modified:** `backend/open_webui/routers/ollama.py` → `modified_files/backend/open_webui/routers/ollama.py`
+- **Modified:** `backend/open_webui/routers/retrieval.py` → `modified_files/backend/open_webui/routers/retrieval.py`
+- **Modified:** `backend/open_webui/routers/tools.py` → `modified_files/backend/open_webui/routers/tools.py`
+- **Modified:** `backend/open_webui/storage/provider.py` → `modified_files/backend/open_webui/storage/provider.py`
+- **Modified:** `backend/open_webui/utils/chat.py` → `modified_files/backend/open_webui/utils/chat.py`
+- **Modified:** `backend/open_webui/utils/filter.py` → `modified_files/backend/open_webui/utils/filter.py`
+- **Modified:** `backend/open_webui/utils/middleware.py` → `modified_files/backend/open_webui/utils/middleware.py`
+- **Modified:** `backend/open_webui/utils/misc.py` → `modified_files/backend/open_webui/utils/misc.py`
+- **Modified:** `backend/open_webui/utils/models.py` → `modified_files/backend/open_webui/utils/models.py`
+- **Modified:** `backend/open_webui/utils/oauth.py` → `modified_files/backend/open_webui/utils/oauth.py`
+- **Modified:** `backend/open_webui/utils/payload.py` → `modified_files/backend/open_webui/utils/payload.py`
+- **Modified:** `backend/open_webui/utils/task.py` → `modified_files/backend/open_webui/utils/task.py`
+- **Modified:** `backend/open_webui/utils/tools.py` → `modified_files/backend/open_webui/utils/tools.py`
+- **Modified:** `backend/requirements.txt` → `modified_files/backend/requirements.txt`
+- **Modified:** `package-lock.json` → `modified_files/package-lock.json`
+- **Modified:** `package.json` → `modified_files/package.json`
+- **Modified:** `pyproject.toml` → `modified_files/pyproject.toml`
+- **Modified:** `src/app.css` → `modified_files/src/app.css`
+- **Modified:** `src/lib/apis/audio/index.ts` → `modified_files/src/lib/apis/audio/index.ts`
+- **Modified:** `src/lib/apis/chats/index.ts` → `modified_files/src/lib/apis/chats/index.ts`
+- **Modified:** `src/lib/apis/files/index.ts` → `modified_files/src/lib/apis/files/index.ts`
+- **Modified:** `src/lib/apis/functions/index.ts` → `modified_files/src/lib/apis/functions/index.ts`
+- **Modified:** `src/lib/apis/index.ts` → `modified_files/src/lib/apis/index.ts`
+- **Modified:** `src/lib/apis/ollama/index.ts` → `modified_files/src/lib/apis/ollama/index.ts`
+- **Modified:** `src/lib/components/AddServerModal.svelte` → `modified_files/src/lib/components/AddServerModal.svelte`
+- **Modified:** `src/lib/components/admin/Functions.svelte` → `modified_files/src/lib/components/admin/Functions.svelte`
+- **Added:**    `src/lib/components/admin/Functions/AddFunctionMenu.svelte` → `modified_files/src/lib/components/admin/Functions/AddFunctionMenu.svelte`
+- **Added:**    `src/lib/components/admin/Functions/ImportModal.svelte` → `modified_files/src/lib/components/admin/Functions/ImportModal.svelte`
+- **Modified:** `src/lib/components/admin/Settings/Documents.svelte` → `modified_files/src/lib/components/admin/Settings/Documents.svelte`
+- **Modified:** `src/lib/components/admin/Settings/General.svelte` → `modified_files/src/lib/components/admin/Settings/General.svelte`
+- **Modified:** `src/lib/components/admin/Settings/Interface.svelte` → `modified_files/src/lib/components/admin/Settings/Interface.svelte`
+- **Added:**    `src/lib/components/admin/Settings/Interface/Banners.svelte` → `modified_files/src/lib/components/admin/Settings/Interface/Banners.svelte`
+- **Modified:** `src/lib/components/admin/Settings/Models.svelte` → `modified_files/src/lib/components/admin/Settings/Models.svelte`
+- **Modified:** `src/lib/components/admin/Settings/Models/ModelMenu.svelte` → `modified_files/src/lib/components/admin/Settings/Models/ModelMenu.svelte`
+- **Modified:** `src/lib/components/admin/Settings/WebSearch.svelte` → `modified_files/src/lib/components/admin/Settings/WebSearch.svelte`
+- **Modified:** `src/lib/components/admin/Users/UserList.svelte` → `modified_files/src/lib/components/admin/Users/UserList.svelte`
+- **Modified:** `src/lib/components/admin/Users/UserList/UserChatsModal.svelte` → `modified_files/src/lib/components/admin/Users/UserList/UserChatsModal.svelte`
+- **Modified:** `src/lib/components/channel/MessageInput.svelte` → `modified_files/src/lib/components/channel/MessageInput.svelte`
+- **Modified:** `src/lib/components/channel/Navbar.svelte` → `modified_files/src/lib/components/channel/Navbar.svelte`
+- **Modified:** `src/lib/components/chat/Chat.svelte` → `modified_files/src/lib/components/chat/Chat.svelte`
+- **Modified:** `src/lib/components/chat/ContentRenderer/FloatingButtons.svelte` → `modified_files/src/lib/components/chat/ContentRenderer/FloatingButtons.svelte`
+- **Modified:** `src/lib/components/chat/MessageInput.svelte` → `modified_files/src/lib/components/chat/MessageInput.svelte`
+- **Modified:** `src/lib/components/chat/MessageInput/CallOverlay.svelte` → `modified_files/src/lib/components/chat/MessageInput/CallOverlay.svelte`
+- **Modified:** `src/lib/components/chat/MessageInput/VoiceRecording.svelte` → `modified_files/src/lib/components/chat/MessageInput/VoiceRecording.svelte`
+- **Modified:** `src/lib/components/chat/Messages/CitationsModal.svelte` → `modified_files/src/lib/components/chat/Messages/CitationsModal.svelte`
+- **Modified:** `src/lib/components/chat/Messages/Markdown/AlertRenderer.svelte` → `modified_files/src/lib/components/chat/Messages/Markdown/AlertRenderer.svelte`
+- **Modified:** `src/lib/components/chat/Messages/ResponseMessage.svelte` → `modified_files/src/lib/components/chat/Messages/ResponseMessage.svelte`
+- **Modified:** `src/lib/components/chat/ModelSelector/Selector.svelte` → `modified_files/src/lib/components/chat/ModelSelector/Selector.svelte`
+- **Modified:** `src/lib/components/chat/Navbar.svelte` → `modified_files/src/lib/components/chat/Navbar.svelte`
+- **Modified:** `src/lib/components/chat/Placeholder.svelte` → `modified_files/src/lib/components/chat/Placeholder.svelte`
+- **Modified:** `src/lib/components/chat/Settings/Advanced/AdvancedParams.svelte` → `modified_files/src/lib/components/chat/Settings/Advanced/AdvancedParams.svelte`
+- **Modified:** `src/lib/components/chat/Settings/Audio.svelte` → `modified_files/src/lib/components/chat/Settings/Audio.svelte`
+- **Modified:** `src/lib/components/chat/Settings/Chats.svelte` → `modified_files/src/lib/components/chat/Settings/Chats.svelte`
+- **Modified:** `src/lib/components/chat/Settings/Personalization/AddMemoryModal.svelte` → `modified_files/src/lib/components/chat/Settings/Personalization/AddMemoryModal.svelte`
+- **Modified:** `src/lib/components/chat/Settings/Personalization/EditMemoryModal.svelte` → `modified_files/src/lib/components/chat/Settings/Personalization/EditMemoryModal.svelte`
+- **Modified:** `src/lib/components/chat/Suggestions.svelte` → `modified_files/src/lib/components/chat/Suggestions.svelte`
+- **Modified:** `src/lib/components/common/RichTextInput.svelte` → `modified_files/src/lib/components/common/RichTextInput.svelte`
+- **Added:**    `src/lib/components/icons/Github.svelte` → `modified_files/src/lib/components/icons/Github.svelte`
+- **Deleted:**  `src/lib/components/icons/LightBlub.svelte`
+- **Added:**    `src/lib/components/layout/ArchivedChatsModal.svelte` → `modified_files/src/lib/components/layout/ArchivedChatsModal.svelte`
+- **Added:**    `src/lib/components/layout/ChatsModal.svelte` → `modified_files/src/lib/components/layout/ChatsModal.svelte`
+- **Deleted:**  `src/lib/components/layout/Help.svelte`
+- **Deleted:**  `src/lib/components/layout/Help/HelpMenu.svelte`
+- **Modified:** `src/lib/components/layout/Navbar.svelte` → `modified_files/src/lib/components/layout/Navbar.svelte`
+- **Modified:** `src/lib/components/layout/SearchModal.svelte` → `modified_files/src/lib/components/layout/SearchModal.svelte`
+- **Modified:** `src/lib/components/layout/Sidebar.svelte` → `modified_files/src/lib/components/layout/Sidebar.svelte`
+- **Deleted:**  `src/lib/components/layout/Sidebar/ArchivedChatsModal.svelte`
+- **Modified:** `src/lib/components/layout/Sidebar/SearchInput.svelte` → `modified_files/src/lib/components/layout/Sidebar/SearchInput.svelte`
+- **Modified:** `src/lib/components/layout/Sidebar/UserMenu.svelte` → `modified_files/src/lib/components/layout/Sidebar/UserMenu.svelte`
+- **Modified:** `src/lib/components/notes/NoteEditor.svelte` → `modified_files/src/lib/components/notes/NoteEditor.svelte`
+- **Modified:** `src/lib/components/notes/RecordMenu.svelte` → `modified_files/src/lib/components/notes/RecordMenu.svelte`
+- **Modified:** `src/lib/components/workspace/Knowledge.svelte` → `modified_files/src/lib/components/workspace/Knowledge.svelte`
+- **Modified:** `src/lib/components/workspace/Knowledge/KnowledgeBase.svelte` → `modified_files/src/lib/components/workspace/Knowledge/KnowledgeBase.svelte`
+- **Modified:** `src/lib/components/workspace/Models.svelte` → `modified_files/src/lib/components/workspace/Models.svelte`
+- **Modified:** `src/lib/components/workspace/Models/ModelMenu.svelte` → `modified_files/src/lib/components/workspace/Models/ModelMenu.svelte`
+- **Modified:** `src/lib/i18n/locales/ar-BH/translation.json` → `modified_files/src/lib/i18n/locales/ar-BH/translation.json`
+- **Modified:** `src/lib/i18n/locales/ar/translation.json` → `modified_files/src/lib/i18n/locales/ar/translation.json`
+- **Modified:** `src/lib/i18n/locales/bg-BG/translation.json` → `modified_files/src/lib/i18n/locales/bg-BG/translation.json`
+- **Modified:** `src/lib/i18n/locales/bn-BD/translation.json` → `modified_files/src/lib/i18n/locales/bn-BD/translation.json`
+- **Modified:** `src/lib/i18n/locales/bo-TB/translation.json` → `modified_files/src/lib/i18n/locales/bo-TB/translation.json`
+- **Modified:** `src/lib/i18n/locales/ca-ES/translation.json` → `modified_files/src/lib/i18n/locales/ca-ES/translation.json`
+- **Modified:** `src/lib/i18n/locales/ceb-PH/translation.json` → `modified_files/src/lib/i18n/locales/ceb-PH/translation.json`
+- **Modified:** `src/lib/i18n/locales/cs-CZ/translation.json` → `modified_files/src/lib/i18n/locales/cs-CZ/translation.json`
+- **Modified:** `src/lib/i18n/locales/da-DK/translation.json` → `modified_files/src/lib/i18n/locales/da-DK/translation.json`
+- **Modified:** `src/lib/i18n/locales/de-DE/translation.json` → `modified_files/src/lib/i18n/locales/de-DE/translation.json`
+- **Modified:** `src/lib/i18n/locales/dg-DG/translation.json` → `modified_files/src/lib/i18n/locales/dg-DG/translation.json`
+- **Modified:** `src/lib/i18n/locales/el-GR/translation.json` → `modified_files/src/lib/i18n/locales/el-GR/translation.json`
+- **Modified:** `src/lib/i18n/locales/en-GB/translation.json` → `modified_files/src/lib/i18n/locales/en-GB/translation.json`
+- **Modified:** `src/lib/i18n/locales/en-US/translation.json` → `modified_files/src/lib/i18n/locales/en-US/translation.json`
+- **Modified:** `src/lib/i18n/locales/es-ES/translation.json` → `modified_files/src/lib/i18n/locales/es-ES/translation.json`
+- **Modified:** `src/lib/i18n/locales/et-EE/translation.json` → `modified_files/src/lib/i18n/locales/et-EE/translation.json`
+- **Modified:** `src/lib/i18n/locales/eu-ES/translation.json` → `modified_files/src/lib/i18n/locales/eu-ES/translation.json`
+- **Modified:** `src/lib/i18n/locales/fa-IR/translation.json` → `modified_files/src/lib/i18n/locales/fa-IR/translation.json`
+- **Modified:** `src/lib/i18n/locales/fi-FI/translation.json` → `modified_files/src/lib/i18n/locales/fi-FI/translation.json`
+- **Modified:** `src/lib/i18n/locales/fr-CA/translation.json` → `modified_files/src/lib/i18n/locales/fr-CA/translation.json`
+- **Modified:** `src/lib/i18n/locales/fr-FR/translation.json` → `modified_files/src/lib/i18n/locales/fr-FR/translation.json`
+- **Modified:** `src/lib/i18n/locales/he-IL/translation.json` → `modified_files/src/lib/i18n/locales/he-IL/translation.json`
+- **Modified:** `src/lib/i18n/locales/hi-IN/translation.json` → `modified_files/src/lib/i18n/locales/hi-IN/translation.json`
+- **Modified:** `src/lib/i18n/locales/hr-HR/translation.json` → `modified_files/src/lib/i18n/locales/hr-HR/translation.json`
+- **Modified:** `src/lib/i18n/locales/hu-HU/translation.json` → `modified_files/src/lib/i18n/locales/hu-HU/translation.json`
+- **Modified:** `src/lib/i18n/locales/id-ID/translation.json` → `modified_files/src/lib/i18n/locales/id-ID/translation.json`
+- **Modified:** `src/lib/i18n/locales/ie-GA/translation.json` → `modified_files/src/lib/i18n/locales/ie-GA/translation.json`
+- **Modified:** `src/lib/i18n/locales/it-IT/translation.json` → `modified_files/src/lib/i18n/locales/it-IT/translation.json`
+- **Modified:** `src/lib/i18n/locales/ja-JP/translation.json` → `modified_files/src/lib/i18n/locales/ja-JP/translation.json`
+- **Modified:** `src/lib/i18n/locales/ka-GE/translation.json` → `modified_files/src/lib/i18n/locales/ka-GE/translation.json`
+- **Modified:** `src/lib/i18n/locales/ko-KR/translation.json` → `modified_files/src/lib/i18n/locales/ko-KR/translation.json`
+- **Modified:** `src/lib/i18n/locales/lt-LT/translation.json` → `modified_files/src/lib/i18n/locales/lt-LT/translation.json`
+- **Modified:** `src/lib/i18n/locales/ms-MY/translation.json` → `modified_files/src/lib/i18n/locales/ms-MY/translation.json`
+- **Modified:** `src/lib/i18n/locales/nb-NO/translation.json` → `modified_files/src/lib/i18n/locales/nb-NO/translation.json`
+- **Modified:** `src/lib/i18n/locales/nl-NL/translation.json` → `modified_files/src/lib/i18n/locales/nl-NL/translation.json`
+- **Modified:** `src/lib/i18n/locales/pa-IN/translation.json` → `modified_files/src/lib/i18n/locales/pa-IN/translation.json`
+- **Modified:** `src/lib/i18n/locales/pl-PL/translation.json` → `modified_files/src/lib/i18n/locales/pl-PL/translation.json`
+- **Modified:** `src/lib/i18n/locales/pt-BR/translation.json` → `modified_files/src/lib/i18n/locales/pt-BR/translation.json`
+- **Modified:** `src/lib/i18n/locales/pt-PT/translation.json` → `modified_files/src/lib/i18n/locales/pt-PT/translation.json`
+- **Modified:** `src/lib/i18n/locales/ro-RO/translation.json` → `modified_files/src/lib/i18n/locales/ro-RO/translation.json`
+- **Modified:** `src/lib/i18n/locales/ru-RU/translation.json` → `modified_files/src/lib/i18n/locales/ru-RU/translation.json`
+- **Modified:** `src/lib/i18n/locales/sk-SK/translation.json` → `modified_files/src/lib/i18n/locales/sk-SK/translation.json`
+- **Modified:** `src/lib/i18n/locales/sr-RS/translation.json` → `modified_files/src/lib/i18n/locales/sr-RS/translation.json`
+- **Modified:** `src/lib/i18n/locales/sv-SE/translation.json` → `modified_files/src/lib/i18n/locales/sv-SE/translation.json`
+- **Modified:** `src/lib/i18n/locales/th-TH/translation.json` → `modified_files/src/lib/i18n/locales/th-TH/translation.json`
+- **Modified:** `src/lib/i18n/locales/tk-TW/translation.json` → `modified_files/src/lib/i18n/locales/tk-TW/translation.json`
+- **Modified:** `src/lib/i18n/locales/tr-TR/translation.json` → `modified_files/src/lib/i18n/locales/tr-TR/translation.json`
+- **Modified:** `src/lib/i18n/locales/uk-UA/translation.json` → `modified_files/src/lib/i18n/locales/uk-UA/translation.json`
+- **Modified:** `src/lib/i18n/locales/ur-PK/translation.json` → `modified_files/src/lib/i18n/locales/ur-PK/translation.json`
+- **Modified:** `src/lib/i18n/locales/vi-VN/translation.json` → `modified_files/src/lib/i18n/locales/vi-VN/translation.json`
+- **Modified:** `src/lib/i18n/locales/zh-CN/translation.json` → `modified_files/src/lib/i18n/locales/zh-CN/translation.json`
+- **Modified:** `src/lib/i18n/locales/zh-TW/translation.json` → `modified_files/src/lib/i18n/locales/zh-TW/translation.json`
+- **Modified:** `src/lib/utils/index.ts` → `modified_files/src/lib/utils/index.ts`
+- **Modified:** `src/lib/utils/marked/katex-extension.ts` → `modified_files/src/lib/utils/marked/katex-extension.ts`
+- **Modified:** `src/routes/(app)/+page.svelte` → `modified_files/src/routes/(app)/+page.svelte`
+- **Modified:** `src/routes/(app)/c/[id]/+page.svelte` → `modified_files/src/routes/(app)/c/[id]/+page.svelte`
+- **Modified:** `src/routes/(app)/notes/+layout.svelte` → `modified_files/src/routes/(app)/notes/+layout.svelte`
+- **Modified:** `src/routes/+layout.svelte` → `modified_files/src/routes/+layout.svelte`
 
 ## Detailed Changes
-
-The following sections show the complete diff for each file:
 
 ```diff
 diff --git a/.github/ISSUE_TEMPLATE/bug_report.yaml b/.github/ISSUE_TEMPLATE/bug_report.yaml
@@ -30366,52 +30354,8 @@ index 96936c338..a214bf7b1 100644
  						localStorage.removeItem('token');
 ```
 
----
-
-## Implementation Notes
-
-### How to Use This Guide
-
-1. **Review the Summary Statistics** to understand the scope of changes
-2. **Check the Files Changed** section to see which files were affected
-3. **Examine copied files** in the `modified_files/` directory
-4. **Use the Detailed Changes** section to see exactly what was modified
-5. **Check the File Manifest** for detailed information about copied files
-
-### Git Commands Used
-
-- **Generate this diff:** `git diff main marker-api-content-extraction`
-- **View file list:** `git diff --name-status main marker-api-content-extraction`
-- **View statistics:** `git diff --stat main marker-api-content-extraction`
-- **Extract files:** `git show marker-api-content-extraction:path/to/file`
-
-### Regenerating This Guide
-
-To regenerate this guide with updated changes, run:
-```bash
-# From the script directory
-./generate_implementation_guide.sh /path/to/repository
-
-# With custom branches
-./generate_implementation_guide.sh /path/to/repository feature-branch base-branch
-```
-
-### Usage Examples
-
-```bash
-# Generate guide for repository in current directory
-./generate_implementation_guide.sh .
-
-# Generate guide for specific repository
-./generate_implementation_guide.sh /path/to/my-project
-
-# Generate guide with custom branches
-./generate_implementation_guide.sh /path/to/my-project my-feature main
-
-# Generate guide for relative path
-./generate_implementation_guide.sh ../my-project
-```
+See [`file_manifest.md`](./file_manifest.md) for file‐by‐file details.
 
 ---
 
-*Generated by enhanced implementation guide script on 2025-05-27 01:54:16*
+*Generated by enhanced implementation guide script on 2025-05-27 02:03:05*
