@@ -1,6 +1,6 @@
 # File Manifest
 
-**Generated:** 2025-05-27 02:09:15  
+**Generated:** 2025-05-27 02:28:44  
 **Repo:**      open-webui  
 **Feature:**   marker-api-content-extraction  
 **Base:**      main  
@@ -12,7 +12,7 @@
 - **A**: `backend/open_webui/retrieval/loaders/datalab_marker_loader.py` (8831 bytes)
 - **M**: `backend/open_webui/retrieval/loaders/main.py` (12525 bytes)
 - **M**: `backend/open_webui/routers/retrieval.py` (87141 bytes)
-- **M**: `src/lib/components/admin/Settings/Documents.svelte` (39044 bytes)
+- **M**: `src/lib/components/admin/Settings/Documents.svelte` (39127 bytes)
 
 ## Failed Copies
 - ****: `` (failed)
@@ -26,4 +26,4 @@
   ./backend/open_webui/routers/retrieval.py
   ./src/lib/components/admin/Settings/Documents.svelte
 ```
-*Generated on 2025-05-27 02:09:15*
+*Generated on 2025-05-27 02:28:44*

@@ -1,6 +1,6 @@
 # Implementation Guide: Marker Api Content Extraction
 
-**Generated:** 2025-05-27 02:09:15  
+**Generated:** 2025-05-27 02:28:44  
 **Repo:**      `open-webui`  
 **Feature:**   `marker-api-content-extraction`  
 **Base:**      `main`  
@@ -12,8 +12,8 @@
  .../retrieval/loaders/datalab_marker_loader.py     | 200 +++++++++++++++++++++
  backend/open_webui/retrieval/loaders/main.py       |  19 +-
  backend/open_webui/routers/retrieval.py            |  81 +++++++++
- src/lib/components/admin/Settings/Documents.svelte | 145 +++++++++++++++
- 6 files changed, 516 insertions(+), 1 deletion(-)
+ src/lib/components/admin/Settings/Documents.svelte | 146 +++++++++++++++
+ 6 files changed, 517 insertions(+), 1 deletion(-)
 
 ## Files changed
 - **Modified:** `backend/open_webui/config.py` → `modified_files/backend/open_webui/config.py`
@@ -491,7 +491,7 @@ index 98f79c7fe..4026abacd 100644
                      EXTERNAL_DOCUMENT_LOADER_API_KEY=request.app.state.config.EXTERNAL_DOCUMENT_LOADER_API_KEY,
                      TIKA_SERVER_URL=request.app.state.config.TIKA_SERVER_URL,
 diff --git a/src/lib/components/admin/Settings/Documents.svelte b/src/lib/components/admin/Settings/Documents.svelte
-index 4144004fb..ff81b01c1 100644
+index 4144004fb..b5fb9b30e 100644
 --- a/src/lib/components/admin/Settings/Documents.svelte
 +++ b/src/lib/components/admin/Settings/Documents.svelte
 @@ -58,6 +58,27 @@
@@ -560,7 +560,15 @@ index 4144004fb..ff81b01c1 100644
  </script>
  
  <ResetUploadDirConfirmDialog
-@@ -291,6 +334,108 @@
+@@ -271,6 +314,7 @@
+ 									bind:value={RAGConfig.CONTENT_EXTRACTION_ENGINE}
+ 								>
+ 									<option value="">{$i18n.t('Default')}</option>
++									<option value="datalab_marker">{ $i18n.t('Datalab Marker API') }</option>
+ 									<option value="external">{$i18n.t('External')}</option>
+ 									<option value="tika">{$i18n.t('Tika')}</option>
+ 									<option value="docling">{$i18n.t('Docling')}</option>
+@@ -291,6 +335,108 @@
  									</div>
  								</div>
  							</div>
