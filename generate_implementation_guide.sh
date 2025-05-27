@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # Implementation Guide Generator
-# Generates a comprehensive implementation guide from git diff between branches
-# Enhanced version with merge-base logic so merges/rebases of main are ignored
-# Cleans out modified_files/ on each run
+# — ignores merges from main by diffing against the true merge-base on origin
+# — cleans modified_files/ on each run
 
 set -e
 
+# ───────────────────────────────────────────────────────────────────────────────
 # Configuration
+# ───────────────────────────────────────────────────────────────────────────────
 FEATURE_BRANCH="marker-api-content-extraction"
 BASE_BRANCH="main"
 OUTPUT_FILE="implementation_guide.md"
@@ -16,298 +17,251 @@ MODIFIED_FILES_DIR="modified_files"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Remote repository configuration (feature‐tracking repo)
 REMOTE_REPO="https://github.com/Hisma/marker_api_feature.git"
 DEFAULT_BRANCH="main"
 
-# Repository path – can be passed as first argument or defaults to current directory
+# Repo path (arg1) or “.”
 REPO_PATH=${1:-"."}
 
-# Override branches if provided as arguments
-if [ $# -ge 2 ]; then
-    FEATURE_BRANCH="$2"
-fi
-if [ $# -ge 3 ]; then
-    BASE_BRANCH="$3"
-fi
+# override branches
+if [ $# -ge 2 ]; then FEATURE_BRANCH="$2"; fi
+if [ $# -ge 3 ]; then BASE_BRANCH="$3";   fi
 
-# Ensure REPO_PATH exists and is a git repo
+# ───────────────────────────────────────────────────────────────────────────────
+# sanity checks
+# ───────────────────────────────────────────────────────────────────────────────
 if [ ! -d "$REPO_PATH" ]; then
-    echo "Error: Repository path '$REPO_PATH' does not exist."
-    echo "Usage: $0 [repository_path] [feature_branch] [base_branch]"
-    exit 1
+  echo "Error: '$REPO_PATH' not found"; exit 1
 fi
 if [ ! -d "$REPO_PATH/.git" ]; then
-    echo "Error: '$REPO_PATH' is not a git repository."
-    echo "Usage: $0 [repository_path] [feature_branch] [base_branch]"
-    exit 1
+  echo "Error: '$REPO_PATH' is not a git repo"; exit 1
 fi
 
-echo "=== Enhanced Implementation Guide Generator ==="
-echo "Repository path: $REPO_PATH"
-echo "Feature branch:   $FEATURE_BRANCH"
-echo "Base branch:      $BASE_BRANCH"
-echo "Output file:      $OUTPUT_FILE"
-echo "Script directory: $SCRIPT_DIR"
+echo "=== Implementation Guide Generator ==="
+echo "Repo path:   $REPO_PATH"
+echo "Feature:     $FEATURE_BRANCH"
+echo "Base:        $BASE_BRANCH"
 echo ""
 
-# Verify branches exist
 cd "$REPO_PATH"
-git rev-parse --verify "$FEATURE_BRANCH" >/dev/null 2>&1 || { echo "Error: Branch '$FEATURE_BRANCH' not found."; exit 1; }
-git rev-parse --verify "$BASE_BRANCH"   >/dev/null 2>&1 || { echo "Error: Branch '$BASE_BRANCH' not found.";   exit 1; }
 
-# Compute the true diff-base: the last common ancestor of base & feature
-BASE_COMMIT=$(git merge-base "$BASE_BRANCH" "$FEATURE_BRANCH")
-echo "Using merge-base commit $BASE_COMMIT (common ancestor of $BASE_BRANCH & $FEATURE_BRANCH)"
+# make sure branches exist locally (we'll fetch remote next)
+git rev-parse --verify "$FEATURE_BRANCH" >/dev/null 2>&1 \
+  || { echo "Feature branch not found"; exit 1; }
+git rev-parse --verify "$BASE_BRANCH"   >/dev/null 2>&1 \
+  || { echo "Base branch not found";    exit 1; }
+
+# ───────────────────────────────────────────────────────────────────────────────
+# fetch the very latest BASE_BRANCH from origin
+# ───────────────────────────────────────────────────────────────────────────────
+echo "Fetching origin/$BASE_BRANCH…"
+git fetch origin "$BASE_BRANCH":"$BASE_BRANCH"
+
+# compute merge-base against origin
+BASE_COMMIT=$(git merge-base origin/"$BASE_BRANCH" "$FEATURE_BRANCH")
+echo "Using merge-base: $BASE_COMMIT"
 echo ""
 
-# -----------------------------------------------------------------------------
-# init_feature_repo: sets up (if needed) a separate git repo in the script dir
-# -----------------------------------------------------------------------------
+# ───────────────────────────────────────────────────────────────────────────────
+# init_feature_repo (unchanged)
+# ───────────────────────────────────────────────────────────────────────────────
 init_feature_repo() {
-    echo "Initializing feature repository..."
-    cd "$SCRIPT_DIR"
-    if [ ! -d ".git" ]; then
-        git init
-        cat > README.md << EOF
-# Marker API Feature Development Repository
+  echo "Initializing feature-tracking repo…"
+  cd "$SCRIPT_DIR"
+  if [ ! -d .git ]; then
+    git init
+    cat > README.md << EOF
+# Marker API Feature Development Repo
 
-This repository tracks all file changes during the development of the marker API feature.
-
-## Structure
-- \`modified_files/\` - copies of all modified/added files
-- \`implementation_guide.md\` - generated implementation guide
-- \`file_manifest.md\` - manifest of all copied files
+Tracks file copies & implementation guides for the feature branch.
 EOF
-        cat > .gitignore << EOF
-# Temporary files
+    cat > .gitignore << EOF
 *.tmp
 *.temp
 .DS_Store
 Thumbs.db
 EOF
-        git add README.md .gitignore
-        git commit -m "Initial commit: Setup marker API feature repository"
-    else
-        echo "Git repository already exists."
-    fi
+    git add README.md .gitignore
+    git commit -m "Initial commit: setup feature repo"
+  else
+    echo "Feature-tracking repo already exists."
+  fi
 
-    # configure remote if provided
-    if [ -n "$REMOTE_REPO" ]; then
-        if ! git remote get-url origin >/dev/null 2>&1; then
-            git remote add origin "$REMOTE_REPO"
-        fi
-        current_branch=$(git branch --show-current)
-        if [ "$current_branch" != "$DEFAULT_BRANCH" ]; then
-            git branch -M "$DEFAULT_BRANCH"
-        fi
-    fi
+  if [ -n "$REMOTE_REPO" ] && ! git remote get-url origin >/dev/null 2>&1; then
+    git remote add origin "$REMOTE_REPO"
+    git branch -M "$DEFAULT_BRANCH"
+  fi
 }
 
-# -----------------------------------------------------------------------------
-# extract_file_from_branch: pulls a single file from the feature branch
-# -----------------------------------------------------------------------------
+# ───────────────────────────────────────────────────────────────────────────────
+# extract_file_from_branch (unchanged)
+# ───────────────────────────────────────────────────────────────────────────────
 extract_file_from_branch() {
-    local branch="$1" file_path="$2" dest_path="$3"
-    cd "$REPO_PATH"
-    mkdir -p "$(dirname "$dest_path")"
-    if git show "$branch:$file_path" > "$dest_path" 2>/dev/null; then
-        return 0
-    else
-        echo "Warning: Could not extract $file_path from $branch"
-        return 1
-    fi
+  local br="$1" f="$2" dest="$3"
+  cd "$REPO_PATH"
+  mkdir -p "$(dirname "$dest")"
+  if git show "$br:$f" > "$dest" 2>/dev/null; then
+    return 0
+  else
+    echo "Warning: cannot extract $f from $br"
+    return 1
+  fi
 }
 
-# -----------------------------------------------------------------------------
-# copy_changed_files: copies Added/Modified files since merge-base into modified_files/
-# -----------------------------------------------------------------------------
+# ───────────────────────────────────────────────────────────────────────────────
+# copy_changed_files (with clean)
+# ───────────────────────────────────────────────────────────────────────────────
 copy_changed_files() {
-    echo "Cleaning and copying changed files (post‐sync) from feature branch..."
-    cd "$SCRIPT_DIR"
-    # completely reset the modified_files directory on each run
-    rm -rf "$MODIFIED_FILES_DIR"
-    mkdir -p "$MODIFIED_FILES_DIR"
+  echo "Resetting & copying post-sync files…"
+  cd "$SCRIPT_DIR"
+  rm -rf "$MODIFIED_FILES_DIR"
+  mkdir -p "$MODIFIED_FILES_DIR"
 
-    # list status vs BASE_COMMIT
-    local changed
-    changed=$(cd "$REPO_PATH" && git diff --name-status "$BASE_COMMIT" "$FEATURE_BRANCH")
+  local changed
+  changed=$(cd "$REPO_PATH" && git diff --name-status "$BASE_COMMIT" "$FEATURE_BRANCH")
 
-    local copied=() failed=()
-    while IFS=$'\t' read -r status file; do
-        case "$status" in
-            A|M)
-                echo "  - $status $file"
-                if extract_file_from_branch "$FEATURE_BRANCH" "$file" "$SCRIPT_DIR/$MODIFIED_FILES_DIR/$file"; then
-                    copied+=("$status:$file")
-                else
-                    failed+=("$status:$file")
-                fi
-                ;;
-            D)
-                # removed in feature => delete any copy
-                [ -f "$SCRIPT_DIR/$MODIFIED_FILES_DIR/$file" ] && rm -f "$SCRIPT_DIR/$MODIFIED_FILES_DIR/$file"
-                ;;
-            R*)
-                # you can expand rename logic here if needed
-                ;;
-        esac
-    done <<< "$changed"
+  local ok=() fail=()
+  while IFS=$'\t' read -r st f; do
+    case "$st" in
+      A|M)
+        echo "  • $st $f"
+        if extract_file_from_branch "$FEATURE_BRANCH" "$f" "$SCRIPT_DIR/$MODIFIED_FILES_DIR/$f"; then
+          ok+=("$st:$f")
+        else
+          fail+=("$st:$f")
+        fi
+        ;;
+      D)
+        [ -f "$MODIFIED_FILES_DIR/$f" ] && rm "$MODIFIED_FILES_DIR/$f"
+        ;;
+      R*)
+        # optionally handle renames
+        ;;
+    esac
+  done <<< "$changed"
 
-    printf '%s\n' "${copied[@]}" > /tmp/copied_files.txt
-    printf '%s\n' "${failed[@]}"   > /tmp/failed_files.txt
-
-    echo "Copied: ${#copied[@]} files; Failed: ${#failed[@]} files."
+  printf "%s\n" "${ok[@]}"  > /tmp/copied.txt
+  printf "%s\n" "${fail[@]}" > /tmp/failed.txt
+  echo "Copied ${#ok[@]} files, failed ${#fail[@]}."
 }
 
-# -----------------------------------------------------------------------------
-# generate_manifest: creates file_manifest.md listing all copied & failed files
-# -----------------------------------------------------------------------------
+# ───────────────────────────────────────────────────────────────────────────────
+# generate_manifest (unchanged)
+# ───────────────────────────────────────────────────────────────────────────────
 generate_manifest() {
-    echo "Generating file manifest..."
-    cd "$SCRIPT_DIR"
-    cat > "$MANIFEST_FILE" << EOF
+  echo "Generating file manifest…"
+  cd "$SCRIPT_DIR"
+  cat > "$MANIFEST_FILE" << EOF
 # File Manifest
 
-**Generated on:** $TIMESTAMP  
-**Repository:** \`$(basename "$REPO_PATH")\`  
-**Feature Branch:** \`$FEATURE_BRANCH\`  
-**Base Branch:**    \`$BASE_BRANCH\`  
-**Merge-Base:**     \`$BASE_COMMIT\`
+**Generated:** $TIMESTAMP  
+**Repo:**      $(basename "$REPO_PATH")  
+**Feature:**   $FEATURE_BRANCH  
+**Base:**      $BASE_BRANCH  
+**Merge-base:** $BASE_COMMIT
 
 ## Copied Files
 EOF
 
-    if [ -s /tmp/copied_files.txt ]; then
-        while IFS=':' read -r st fp; do
-            local sz=""
-            if [ -f "$MODIFIED_FILES_DIR/$fp" ]; then
-                sz=" ($(stat -c%s "$MODIFIED_FILES_DIR/$fp") bytes)"
-            fi
-            echo "- **${st}**: \`$fp\`$sz" >> "$MANIFEST_FILE"
-        done < /tmp/copied_files.txt
-    else
-        echo "No files were copied." >> "$MANIFEST_FILE"
-    fi
+  if [ -s /tmp/copied.txt ]; then
+    while IFS=':' read -r st f; do
+      sz=""
+      [ -f "$MODIFIED_FILES_DIR/$f" ] && sz=" ($(stat -c%s "$MODIFIED_FILES_DIR/$f") bytes)"
+      echo "- **$st**: \`$f\`$sz" >> "$MANIFEST_FILE"
+    done < /tmp/copied.txt
+  else
+    echo "No files copied." >> "$MANIFEST_FILE"
+  fi
 
-    if [ -s /tmp/failed_files.txt ]; then
-        echo -e "\n## Failed Copies" >> "$MANIFEST_FILE"
-        while IFS=':' read -r st fp; do
-            echo "- **${st}**: \`$fp\` (failed)" >> "$MANIFEST_FILE"
-        done < /tmp/failed_files.txt
-    fi
+  if [ -s /tmp/failed.txt ]; then
+    echo -e "\n## Failed Copies" >> "$MANIFEST_FILE"
+    while IFS=':' read -r st f; do
+      echo "- **$st**: \`$f\` (failed)" >> "$MANIFEST_FILE"
+    done < /tmp/failed.txt
+  fi
 
-    echo -e "\n## Directory Structure\n" >> "$MANIFEST_FILE"
-    echo '```' >> "$MANIFEST_FILE"
-    (cd "$MODIFIED_FILES_DIR" && find . -type f | sed 's/^/  /') >> "$MANIFEST_FILE"
-    echo '```' >> "$MANIFEST_FILE"
+  echo -e "\n## Directory Structure\n\`\`\`" >> "$MANIFEST_FILE"
+  (cd "$MODIFIED_FILES_DIR" && find . -type f | sed 's/^/  /') >> "$MANIFEST_FILE"
+  echo -e "\`\`\`\n*Generated on $TIMESTAMP*" >> "$MANIFEST_FILE"
 
-    echo -e "\n*Generated by script on $TIMESTAMP*" >> "$MANIFEST_FILE"
-
-    rm -f /tmp/copied_files.txt /tmp/failed_files.txt
+  rm -f /tmp/copied.txt /tmp/failed.txt
 }
 
-# -----------------------------------------------------------------------------
-# commit_changes: commits README, manifest, guide & copied files into feature repo
-# -----------------------------------------------------------------------------
+# ───────────────────────────────────────────────────────────────────────────────
+# commit_changes (unchanged)
+# ───────────────────────────────────────────────────────────────────────────────
 commit_changes() {
-    echo "Committing to feature‐tracking repo..."
-    cd "$SCRIPT_DIR"
-    git add .
-    if git diff --staged --quiet; then
-        echo "No changes to commit."
-        return
-    fi
+  echo "Committing to feature-tracking repo…"
+  cd "$SCRIPT_DIR"
+  git add .
+  if git diff --staged --quiet; then
+    echo "No staged changes."
+    return
+  fi
 
-    local feature_hash
-    feature_hash=$(cd "$REPO_PATH" && git rev-parse --short "$FEATURE_BRANCH")
+  feature_hash=$(cd "$REPO_PATH" && git rev-parse --short "$FEATURE_BRANCH")
+  git commit -m "Update from $FEATURE_BRANCH [$feature_hash] post-merge-base $BASE_COMMIT"
+  git push origin "$DEFAULT_BRANCH" || echo "Push failed; push manually."
 
-    git commit -m "Update from $FEATURE_BRANCH [$feature_hash] post-merge-base $BASE_COMMIT
-
-Files extracted from feature branch and implementation guide updated.
-Diff against merge-base: $BASE_COMMIT"
-
-    if git remote get-url origin >/dev/null 2>&1; then
-        git push origin "$DEFAULT_BRANCH" || echo "Push failed; please push manually."
-    fi
-
-    echo "Recent commits:"
-    git --no-pager log --oneline -5
+  echo "Recent commits:"
+  git --no-pager log --oneline -5
 }
 
-# -----------------------------------------------------------------------------
-# Main execution
-# -----------------------------------------------------------------------------
-
-# 1) initialize feature repo
-init_feature_repo
-
-# 2) copy changed files since merge-base (cleans modified_files/ first)
-copy_changed_files
-
-# 3) generate manifest
-generate_manifest
-
-# 4) build the implementation guide
-cd "$SCRIPT_DIR"
-cat > "$OUTPUT_FILE" << EOF
+# ───────────────────────────────────────────────────────────────────────────────
+# build guide
+# ───────────────────────────────────────────────────────────────────────────────
+build_guide() {
+  cd "$SCRIPT_DIR"
+  cat > "$OUTPUT_FILE" << EOF
 # Implementation Guide: $(echo "$FEATURE_BRANCH" | sed 's/-/ /g' | sed 's/\b\w/\U&/g')
 
-**Generated on:** $TIMESTAMP  
-**Repository:** \`$(basename "$REPO_PATH")\`  
-**Feature Branch:** \`$FEATURE_BRANCH\`  
-**Base Branch:**    \`$BASE_BRANCH\`  
-**Merge-Base:**     \`$BASE_COMMIT\`
+**Generated:** $TIMESTAMP  
+**Repo:**      \`$(basename "$REPO_PATH")\`  
+**Feature:**   \`$FEATURE_BRANCH\`  
+**Base:**      \`$BASE_BRANCH\`  
+**Merge-base:** \`$BASE_COMMIT\`
 
-## Overview
-
-This document shows all changes made on \`$FEATURE_BRANCH\` *since* it last diverged from \`$BASE_BRANCH\`.
-
-## Summary Statistics
-
+## Summary stats
 EOF
 
-(cd "$REPO_PATH" && git diff --stat "$BASE_COMMIT" "$FEATURE_BRANCH") >> "$OUTPUT_FILE"
+  (cd "$REPO_PATH" && git diff --stat     "$BASE_COMMIT" "$FEATURE_BRANCH") >> "$OUTPUT_FILE"
+  cat >> "$OUTPUT_FILE" << EOF
 
-cat >> "$OUTPUT_FILE" << EOF
-
-## Files Changed
+## Files changed
 EOF
 
-(cd "$REPO_PATH" && git diff --name-status "$BASE_COMMIT" "$FEATURE_BRANCH") | \
-while read st f; do
+  (cd "$REPO_PATH" && git diff --name-status "$BASE_COMMIT" "$FEATURE_BRANCH") | \
+  while read st f; do
     case $st in
-        A) echo "- **Added:**    \`$f\` → \`$MODIFIED_FILES_DIR/$f\`" >> "$OUTPUT_FILE";;
-        M) echo "- **Modified:** \`$f\` → \`$MODIFIED_FILES_DIR/$f\`" >> "$OUTPUT_FILE";;
-        D) echo "- **Deleted:**  \`$f\`"                 >> "$OUTPUT_FILE";;
-        *) echo "- **$st:**       \`$f\`"                >> "$OUTPUT_FILE";;
+      A) echo "- **Added:**    \`$f\` → \`$MODIFIED_FILES_DIR/$f\`" >> "$OUTPUT_FILE" ;;
+      M) echo "- **Modified:** \`$f\` → \`$MODIFIED_FILES_DIR/$f\`" >> "$OUTPUT_FILE" ;;
+      D) echo "- **Deleted:**  \`$f\`" >> "$OUTPUT_FILE" ;;
+      *) echo "- **$st:**       \`$f\`" >> "$OUTPUT_FILE" ;;
     esac
-done
+  done
 
-cat >> "$OUTPUT_FILE" << EOF
+  cat >> "$OUTPUT_FILE" << EOF
 
-## Detailed Changes
+## Detailed diff
 
 \`\`\`diff
 EOF
-
-(cd "$REPO_PATH" && git diff "$BASE_COMMIT" "$FEATURE_BRANCH") >> "$OUTPUT_FILE"
-
-cat >> "$OUTPUT_FILE" << EOF
+  (cd "$REPO_PATH" && git diff "$BASE_COMMIT" "$FEATURE_BRANCH") >> "$OUTPUT_FILE"
+  cat >> "$OUTPUT_FILE" << EOF
 \`\`\`
-
-See [\`$MANIFEST_FILE\`](./$MANIFEST_FILE) for file‐by‐file details.
-
----
-
-*Generated by enhanced implementation guide script on $TIMESTAMP*
 EOF
+}
 
-# 5) finally, commit everything to the feature-tracking repo
+# ───────────────────────────────────────────────────────────────────────────────
+# main
+# ───────────────────────────────────────────────────────────────────────────────
+init_feature_repo
+copy_changed_files
+generate_manifest
+build_guide
 commit_changes
 
 echo ""
-echo "=== Done ==="
-echo "Guide:   $OUTPUT_FILE"
-echo "Manifest: $MANIFEST_FILE"
-echo "Files:   in $MODIFIED_FILES_DIR/"
+echo "Done."
+echo "→ $OUTPUT_FILE"
+echo "→ $MANIFEST_FILE"
